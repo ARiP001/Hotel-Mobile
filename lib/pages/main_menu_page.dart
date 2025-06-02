@@ -1,0 +1,269 @@
+import 'package:flutter/material.dart';
+import 'package:TuruKamar/utilities/hotel_network.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'hotel_detail_page.dart';
+import 'tracking_page.dart';
+
+class MainMenuPage extends StatefulWidget {
+  const MainMenuPage({super.key, this.onFilterPressed});
+  final VoidCallback? onFilterPressed;
+
+  @override
+  State<MainMenuPage> createState() => _MainMenuPageState();
+}
+
+class _MainMenuPageState extends State<MainMenuPage> {
+  final ScrollController _scrollController = ScrollController();
+  final List<Map<String, dynamic>> _hotels = [];
+  final List<String> _locationCodes = [
+    'g2304080', // Sleman
+    'g2304084', // Bantul
+    'g2304083', // Gunungkidul
+    'g2304082', // Kulonprogo
+    'g14782503', // Kota Yogyakarta
+  ];
+  final Map<String, int> _offsets = {};
+  bool _isLoading = false;
+  bool _hasMore = true;
+
+  // Filter state
+  String? _selectedLocation;
+  double? _minPrice;
+  double? _minRating;
+
+  List<Map<String, dynamic>> get _filteredHotels {
+    return _hotels.where((hotel) {
+      // Filter lokasi
+      if (_selectedLocation != null && _selectedLocation != 'Semua') {
+        final key = hotel['key'] ?? '';
+        if (_selectedLocation == 'Sleman' && !key.contains('g2304080')) return false;
+        if (_selectedLocation == 'Bantul' && !key.contains('g2304084')) return false;
+        if (_selectedLocation == 'Gunungkidul' && !key.contains('g2304083')) return false;
+        if (_selectedLocation == 'Kulonprogo' && !key.contains('g2304082')) return false;
+        if (_selectedLocation == 'Kota Yogyakarta' && !key.contains('g14782503')) return false;
+      }
+      // Filter harga
+      final minPrice = hotel['price_ranges']?['minimum'];
+      final priceVal = (minPrice is num) ? minPrice.toDouble() : double.tryParse(minPrice?.toString() ?? '') ?? 0;
+      if (_minPrice != null && priceVal < _minPrice!) return false;
+      // Filter rating
+      final rating = hotel['review_summary']?['rating'];
+      final ratingVal = (rating is num) ? rating.toDouble() : double.tryParse(rating?.toString() ?? '') ?? 0;
+      if (_minRating != null && ratingVal < _minRating!) return false;
+      return true;
+    }).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    for (var code in _locationCodes) {
+      _offsets[code] = 0;
+    }
+    _fetchHotels();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchHotels() async {
+    if (_isLoading || !_hasMore) return;
+    setState(() => _isLoading = true);
+    List<Map<String, dynamic>> newHotels = [];
+    for (var code in _locationCodes) {
+      final offset = _offsets[code] ?? 0;
+      final hotels = await HotelNetwork.getHotels(locationKey: code, offset: offset);
+      final filtered = hotels.where((hotel) {
+        final minPrice = hotel['price_ranges']?['minimum'];
+        if (minPrice == null) return false;
+        if (minPrice is num) return minPrice > 0;
+        final minPriceStr = minPrice.toString();
+        if (minPriceStr.isEmpty || minPriceStr == '-') return false;
+        final parsed = double.tryParse(minPriceStr);
+        return parsed != null && parsed > 0;
+      }).toList();
+      if (filtered.isNotEmpty) {
+        newHotels.addAll(filtered);
+        _offsets[code] = offset + hotels.length;
+      }
+      if (hotels.length < 30) {
+        _hasMore = false;
+      }
+    }
+    setState(() {
+      _hotels.addAll(newHotels);
+      _isLoading = false;
+    });
+    print('Total hotels loaded: ${_hotels.length}');
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 && !_isLoading && _hasMore) {
+      _fetchHotels();
+    }
+  }
+
+  void _showFilterDialog() async {
+    String? tempLocation = _selectedLocation;
+    double? tempMinPrice = _minPrice;
+    double? tempMinRating = _minRating;
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Filter Hotel', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: tempLocation ?? 'Semua',
+                      items: const [
+                        DropdownMenuItem(value: 'Semua', child: Text('Semua Lokasi')),
+                        DropdownMenuItem(value: 'Sleman', child: Text('Sleman')),
+                        DropdownMenuItem(value: 'Bantul', child: Text('Bantul')),
+                        DropdownMenuItem(value: 'Gunungkidul', child: Text('Gunungkidul')),
+                        DropdownMenuItem(value: 'Kulonprogo', child: Text('Kulonprogo')),
+                        DropdownMenuItem(value: 'Kota Yogyakarta', child: Text('Kota Yogyakarta')),
+                      ],
+                      onChanged: (val) => setModalState(() => tempLocation = val),
+                      decoration: const InputDecoration(labelText: 'Lokasi'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: tempMinPrice?.toString() ?? '',
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Harga Minimum'),
+                      onChanged: (val) => setModalState(() => tempMinPrice = double.tryParse(val)),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: tempMinRating?.toString() ?? '',
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Rating Minimum'),
+                      onChanged: (val) => setModalState(() => tempMinRating = double.tryParse(val)),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedLocation = null;
+                              _minPrice = null;
+                              _minRating = null;
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Reset'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF388E3C)),
+                          onPressed: () {
+                            setState(() {
+                              _selectedLocation = tempLocation == 'Semua' ? null : tempLocation;
+                              _minPrice = tempMinPrice;
+                              _minRating = tempMinRating;
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Terapkan'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF388E3C),
+        title: const Text('Daftar Hotel', style: TextStyle(color: Colors.white)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.map, color: Colors.white),
+            tooltip: 'Buka Peta',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TrackingPage(hotels: _filteredHotels),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list, color: Colors.white),
+            onPressed: _showFilterDialog,
+          ),
+        ],
+      ),
+      body: _filteredHotels.isEmpty && _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: _filteredHotels.length + (_isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _filteredHotels.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                final hotel = _filteredHotels[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: ListTile(
+                    leading: (hotel['image'] != null && hotel['image'].toString().startsWith('http'))
+                        ? CachedNetworkImage(
+                            imageUrl: hotel['image'],
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            ),
+                            errorWidget: (context, url, error) => const Icon(Icons.hotel, size: 40, color: Colors.green),
+                          )
+                        : const Icon(Icons.hotel, size: 40, color: Colors.green),
+                    title: Text(hotel['name'] ?? 'No Name'),
+                    subtitle: Text('Rating: ${hotel['review_summary']?['rating'] ?? '-'} | Mulai dari: ${hotel['price_ranges']?['minimum'] ?? '-'} | Pemesanan: ${hotel['review_summary']?['count'] ?? '-'}'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HotelDetailPage(hotel: hotel),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+    );
+  }
+} 

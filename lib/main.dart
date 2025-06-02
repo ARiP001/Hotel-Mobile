@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:proyek_akhir_teori/utilities/notification_service.dart';
-import 'package:proyek_akhir_teori/pages/home_page.dart';
+import 'package:TuruKamar/utilities/notification_service.dart';
+import 'package:TuruKamar/pages/home_page.dart';
+import 'package:TuruKamar/pages/welcome_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
@@ -14,9 +15,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFF388E3C),
+          primary: Color(0xFF388E3C),
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF388E3C), width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF388E3C)),
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF388E3C)),
+          ),
+        ),
+      ),
+      home: WelcomePage(),
     );
   }
 }

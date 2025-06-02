@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'hotel_detail_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TrackingPage extends StatefulWidget {
-  const TrackingPage({super.key});
+  final List<Map<String, dynamic>> hotels;
+  const TrackingPage({super.key, required this.hotels});
 
   @override
   State<TrackingPage> createState() => _TrackingPageState();
@@ -12,16 +15,39 @@ class TrackingPage extends StatefulWidget {
 
 class _TrackingPageState extends State<TrackingPage> {
   GoogleMapController? _mapController;
-  LatLng _currentPosition = const LatLng(-6.200000, 106.816666); // default location, Jakarta
+  LatLng _currentPosition = const LatLng(-7.782250, 110.415417); // default location, Yogyakarta
   Marker? _userMarker;
   String? latText;
   String? longText;
+  Set<Marker> _hotelMarkers = {};
+  final Map<String, Map<String, dynamic>> _markerIdToHotel = {};
 
   @override
   void initState() {
     super.initState();
+    _loadLastLocation();
     requestPermission();
     startTracking();
+    _setHotelMarkers();
+  }
+
+  Future<void> _loadLastLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lat = prefs.getDouble('last_lat');
+    final lng = prefs.getDouble('last_lng');
+    print('Loaded last location: lat=$lat, lng=$lng');
+    if (lat != null && lng != null) {
+      setState(() {
+        _currentPosition = LatLng(lat, lng);
+      });
+    }
+  }
+
+  void _saveLastLocation(double lat, double lng) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('last_lat', lat);
+    await prefs.setDouble('last_lng', lng);
+    print('Saved last location: lat=$lat, lng=$lng');
   }
 
   Future<void> requestPermission() async {
@@ -50,8 +76,47 @@ class _TrackingPageState extends State<TrackingPage> {
           infoWindow: const InfoWindow(title: "Kamu di sini"),
         );
       });
-
+      _saveLastLocation(position.latitude, position.longitude);
       _mapController?.animateCamera(CameraUpdate.newLatLng(newPosition));
+    });
+  }
+
+  void _setHotelMarkers() {
+    final markers = <Marker>{};
+    _markerIdToHotel.clear();
+    for (var hotel in widget.hotels) {
+      final geo = hotel['geo'] ?? {};
+      final lat = geo['latitude'];
+      final lng = geo['longitude'];
+      final markerId = hotel['key'] ?? hotel['name'] ?? '';
+      if (lat != null && lng != null) {
+        _markerIdToHotel[markerId] = hotel;
+        markers.add(
+          Marker(
+            markerId: MarkerId(markerId),
+            position: LatLng(lat.toDouble(), lng.toDouble()),
+            infoWindow: InfoWindow(
+              title: hotel['name'] ?? '-',
+              snippet: 'Rating: ${hotel['review_summary']?['rating'] ?? '-'}',
+              onTap: () {
+                final hotelData = _markerIdToHotel[markerId];
+                if (hotelData != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HotelDetailPage(hotel: hotelData),
+                    ),
+                  );
+                }
+              },
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          ),
+        );
+      }
+    }
+    setState(() {
+      _hotelMarkers = markers;
     });
   }
 
@@ -66,9 +131,12 @@ class _TrackingPageState extends State<TrackingPage> {
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: _currentPosition,
-              zoom: 16,
+              zoom: 12,
             ),
-            markers: _userMarker != null ? {_userMarker!} : {},
+            markers: {
+              if (_userMarker != null) _userMarker!,
+              ..._hotelMarkers,
+            },
             onMapCreated: (controller) {
               _mapController = controller;
             },

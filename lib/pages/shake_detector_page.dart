@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:proyek_akhir_teori/utilities/notification_service.dart';
+import 'package:TuruKamar/utilities/notification_service.dart';
 
 class ShakeDetectorPage extends StatefulWidget {
   const ShakeDetectorPage({super.key});
