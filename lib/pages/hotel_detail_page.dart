@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utilities/currency_util.dart';
+import 'package:hive/hive.dart';
+import '../models/transaction.dart';
+import '../models/boxes.dart';
+import 'package:intl/intl.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:async';
+import 'dart:math';
+import '../utilities/notification_service.dart';
+import '../pages/receipt_page.dart';
 
 class HotelDetailPage extends StatefulWidget {
   final Map<String, dynamic> hotel;
@@ -39,6 +48,244 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     );
   }
 
+  Future<void> _showShakeConfirmationDialog({
+    required Transaction transaction,
+    required double total,
+    required String username,
+  }) async {
+    bool isConfirmed = false;
+    StreamSubscription<AccelerometerEvent>? _subscription;
+    BuildContext? dialogContext;
+
+    void onShake() async {
+      print('onShake called, isConfirmed=$isConfirmed');
+      if (isConfirmed) return;
+      isConfirmed = true;
+      _subscription?.cancel();
+      if (dialogContext != null) {
+        Navigator.of(dialogContext!).pop();
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+
+      // Cek balance
+      final prefs = await SharedPreferences.getInstance();
+      final balanceKey = 'user_${username}_balance';
+      final currentBalance = prefs.getDouble(balanceKey) ?? 0.0;
+      if (currentBalance < total) {
+        // Tampilkan pesan error saldo tidak cukup
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Saldo Tidak Cukup'),
+              content: const Text('Saldo Anda tidak mencukupi untuk melakukan pemesanan ini.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+
+      // Notifikasi shake
+      await NotificationService().showNotification(
+        title: 'Konfirmasi Booking',
+        body: 'Pemesanan kamar berhasil dikonfirmasi dengan shake!',
+      );
+
+      // Update balance
+      final newBalance = currentBalance - total;
+      await prefs.setDouble(balanceKey, newBalance);
+
+      // Simpan transaksi ke Hive
+      final box = await Hive.openBox<Transaction>(HiveBoxes.transaction);
+      await box.add(transaction);
+
+      // Navigasi ke ReceiptPage
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => ReceiptPage(transaction: transaction),
+          ),
+        );
+      }
+    }
+
+    _subscription = accelerometerEvents.listen((event) {
+      double acceleration = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+      print('Shake acceleration: ' + acceleration.toStringAsFixed(2));
+      if (acceleration > 15) {
+        onShake();
+      }
+    });
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        dialogContext = ctx;
+        return AlertDialog(
+          title: const Text('Konfirmasi Pemesanan'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.phone_android, size: 60, color: Colors.green),
+              SizedBox(height: 16),
+              Text('Shake HP Anda untuk konfirmasi pemesanan!'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _subscription?.cancel();
+                Navigator.pop(ctx);
+              },
+              child: const Text('Batal'),
+            ),
+          ],
+        );
+      },
+    );
+    _subscription?.cancel();
+  }
+
+  Future<void> _showBookingDialog() async {
+    DateTime? checkin;
+    DateTime? checkout;
+    String roomType = 'Economist';
+    final hotel = widget.hotel;
+    final price = hotel['price_ranges'] ?? {};
+    final minPrice = (price['minimum'] is num) ? price['minimum'].toDouble() : double.tryParse(price['minimum']?.toString() ?? '') ?? 0;
+    final maxPrice = (price['maximum'] is num) ? price['maximum'].toDouble() : double.tryParse(price['maximum']?.toString() ?? '') ?? 0;
+    final regPrice = ((minPrice + maxPrice) / 2);
+    final review = hotel['review_summary'] ?? {};
+    final isSpecialOffer = (review['count'] == 0);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Pesan Kamar'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: Text('Check-in: ${checkin != null ? DateFormat('dd MMM yyyy').format(checkin!) : '-'}'),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null) {
+                        setState(() => checkin = picked);
+                        print('Check-in picked ${checkin}');
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Check-out ${checkout != null ? DateFormat('dd MMM yyyy').format(checkout!) : '-'}'),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: checkin == null
+                        ? null
+                        : () async {
+                            print('Check-in value before checkout: \\${checkin}');
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: checkin!.add(const Duration(days: 1)),
+                              firstDate: checkin!.add(const Duration(days: 1)),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              setState(() => checkout = picked);
+                              print('Check-out picked: \\${checkout}');
+                            }
+                          },
+                  ),
+                  DropdownButton<String>(
+                    value: roomType,
+                    items: ['Economist', 'Regular', 'VIP'].map((type) {
+                      return DropdownMenuItem(value: type, child: Text(type));
+                    }).toList(),
+                    onChanged: (val) => setState(() => roomType = val!),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (checkin == null || checkout == null || !checkout!.isAfter(checkin!)) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tanggal tidak valid')));
+                      return;
+                    }
+                    final day = checkout!.difference(checkin!).inDays;
+                    double priceVal;
+                    if (roomType == 'Economist') priceVal = minPrice;
+                    else if (roomType == 'VIP') priceVal = maxPrice;
+                    else priceVal = regPrice;
+                    double total = priceVal * day;
+                    bool appliedDiscount = false;
+                    if (isSpecialOffer) {
+                      total = total * 0.5;
+                      appliedDiscount = true;
+                    }
+
+                    // Ambil username dari SharedPreferences
+                    final prefs = await SharedPreferences.getInstance();
+                    final username = prefs.getString('logged_in_user') ?? '-';
+
+                    final transaction = Transaction(
+                      username: username,
+                      hotelKey: hotel['key'] ?? '',
+                      hotelName: hotel['name'] ?? '',
+                      checkin: checkin!,
+                      checkout: checkout!,
+                      day: day,
+                      price: priceVal,
+                      total: total,
+                    );
+
+                    // Tampilkan dialog konfirmasi shake
+                    await _showShakeConfirmationDialog(
+                      transaction: transaction,
+                      total: total,
+                      username: username,
+                    );
+
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Pesan'),
+                      if (isSpecialOffer)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Icon(Icons.local_offer, color: Colors.orange, size: 20),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hotel = widget.hotel;
@@ -49,6 +296,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     final minPrice = (price['minimum'] is num) ? price['minimum'].toDouble() : double.tryParse(price['minimum']?.toString() ?? '') ?? 0;
     final maxPrice = (price['maximum'] is num) ? price['maximum'].toDouble() : double.tryParse(price['maximum']?.toString() ?? '') ?? 0;
     final regPrice = ((minPrice + maxPrice) / 2).toStringAsFixed(0);
+    final isSpecialOffer = (review['count'] == 0);
 
     // Mapping location codes to names
     String getLocationName(String key) {
@@ -125,6 +373,26 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                 ),
                 const SizedBox(height: 8),
               ],
+              if (isSpecialOffer) ...[
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange, width: 2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.local_offer, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text('Special Offer: 50% Discount',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               const Text('Jenis Kamar:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               roomInfo('Economist', minPrice),
@@ -152,7 +420,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                     textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () {
-                    // TODO: implement booking
+                    _showBookingDialog();
                   },
                   child: const Text('Pesan Kamar'),
                 ),

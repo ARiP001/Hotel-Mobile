@@ -3,9 +3,13 @@ import 'package:TuruKamar/utilities/notification_service.dart';
 import 'package:TuruKamar/pages/home_page.dart';
 import 'package:TuruKamar/pages/welcome_page.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'models/transaction.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(TransactionAdapter());
   await NotificationService().initNotification();
   runApp(const MyApp());
 }
