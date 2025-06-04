@@ -5,6 +5,7 @@ import 'package:TuruKamar/pages/home_page.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:TuruKamar/utilities/notification_service.dart';
+import 'package:TuruKamar/utilities/session_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
     final savedPassword = prefs.getString('user_${username}_password');
     final hashedInput = sha256.convert(utf8.encode(password)).toString();
     if (savedPassword != null && savedPassword == hashedInput) {
+      // Generate a simple token (in a real app, this would come from your backend)
+      final token = base64Encode(utf8.encode('$username:${DateTime.now().millisecondsSinceEpoch}'));
+      await SessionManager.saveToken(token);
       await prefs.setBool('is_logged_in', true);
       await prefs.setString('logged_in_user', username);
       await NotificationService().showNotification(

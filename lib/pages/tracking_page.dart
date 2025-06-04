@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'hotel_detail_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utilities/session_manager.dart';
+import 'welcome_page.dart';
 
 class TrackingPage extends StatefulWidget {
   final List<Map<String, dynamic>> hotels;
@@ -25,10 +27,21 @@ class _TrackingPageState extends State<TrackingPage> {
   @override
   void initState() {
     super.initState();
+    _checkSession();
     _loadLastLocation();
     requestPermission();
     startTracking();
     _setHotelMarkers();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await SessionManager.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+      );
+    }
   }
 
   Future<void> _loadLastLocation() async {

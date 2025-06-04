@@ -11,6 +11,9 @@ import 'dart:async';
 import 'dart:math';
 import '../utilities/notification_service.dart';
 import '../pages/receipt_page.dart';
+import '../utilities/session_manager.dart';
+import 'welcome_page.dart';
+import '../services/bookmark_service.dart';
 
 class HotelDetailPage extends StatefulWidget {
   final Map<String, dynamic> hotel;
@@ -22,11 +25,25 @@ class HotelDetailPage extends StatefulWidget {
 
 class _HotelDetailPageState extends State<HotelDetailPage> {
   String _region = 'usd';
+  bool _isBookmarked = false;
+  String? _username;
 
   @override
   void initState() {
     super.initState();
+    _checkSession();
     _loadRegion();
+    _checkBookmarkStatus();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await SessionManager.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+      );
+    }
   }
 
   Future<void> _loadRegion() async {
@@ -36,6 +53,30 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     setState(() {
       _region = region ?? 'usd';
     });
+  }
+
+  Future<void> _checkBookmarkStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    _username = prefs.getString('logged_in_user');
+    if (_username != null) {
+      final isBookmarked = await BookmarkService.isBookmarked(widget.hotel['key'], _username!);
+      setState(() {
+        _isBookmarked = isBookmarked;
+      });
+    }
+  }
+
+  Future<void> _toggleBookmark() async {
+    if (_username != null) {
+      if (_isBookmarked) {
+        await BookmarkService.removeBookmark(widget.hotel['key'], _username!);
+      } else {
+        await BookmarkService.saveBookmark(widget.hotel, _username!);
+      }
+      setState(() {
+        _isBookmarked = !_isBookmarked;
+      });
+    }
   }
 
   Widget roomInfo(String label, double price) {
@@ -314,6 +355,15 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         backgroundColor: const Color(0xFF388E3C),
         title: Text(hotel['name'] ?? 'Detail Hotel', style: const TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+              color: Colors.white,
+            ),
+            onPressed: _toggleBookmark,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

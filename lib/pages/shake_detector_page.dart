@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:TuruKamar/utilities/notification_service.dart';
+import '../utilities/session_manager.dart';
+import 'welcome_page.dart';
 
 class ShakeDetectorPage extends StatefulWidget {
   const ShakeDetectorPage({super.key});
@@ -24,6 +26,7 @@ class _ShakeDetectorPageState extends State<ShakeDetectorPage> {
   @override
   void initState() {
     super.initState();
+    _checkSession();
     _startShakeDetection();
   }
 
@@ -31,6 +34,16 @@ class _ShakeDetectorPageState extends State<ShakeDetectorPage> {
   void dispose() {
     _accelerometerSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await SessionManager.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+      );
+    }
   }
 
   void _startShakeDetection() {

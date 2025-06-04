@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:TuruKamar/pages/home_page.dart';
 import 'package:TuruKamar/pages/login_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utilities/session_manager.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -44,8 +44,7 @@ class WelcomePage extends StatelessWidget {
                 textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+                final isLoggedIn = await SessionManager.isLoggedIn();
                 if (isLoggedIn) {
                   Navigator.pushReplacement(
                     context,

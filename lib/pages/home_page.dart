@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'main_menu_page.dart';
 import 'profil_page.dart';
 import 'saran_page.dart';
+import 'welcome_page.dart';
+import '../utilities/session_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +20,22 @@ class _HomePageState extends State<HomePage> {
     ProfilPage(),
     SaranPage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await SessionManager.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+      );
+    }
+  }
 
   void _onTabTapped(int index) {
     setState(() {

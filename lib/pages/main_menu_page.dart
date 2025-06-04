@@ -3,6 +3,10 @@ import 'package:TuruKamar/utilities/hotel_network.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'hotel_detail_page.dart';
 import 'tracking_page.dart';
+import 'welcome_page.dart';
+import '../utilities/session_manager.dart';
+import '../utilities/currency_util.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainMenuPage extends StatefulWidget {
   const MainMenuPage({super.key, this.onFilterPressed});
@@ -25,6 +29,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   final Map<String, int> _offsets = {};
   bool _isLoading = false;
   bool _hasMore = true;
+  String? _region;
 
   // Filter state
   String? _selectedLocation;
@@ -60,6 +65,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
     for (var code in _locationCodes) {
       _offsets[code] = 0;
     }
+    _checkSession();
+    _loadRegion();
     _fetchHotels();
     _scrollController.addListener(_onScroll);
   }
@@ -68,6 +75,32 @@ class _MainMenuPageState extends State<MainMenuPage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await SessionManager.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+      );
+    }
+  }
+
+  Future<void> _loadRegion() async {
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('logged_in_user');
+    if (username != null) {
+      final region = prefs.getString('user_${username}_region') ?? 'usd';
+      setState(() {
+        _region = region;
+      });
+    }
+  }
+
+  String _formatCurrency(double amount) {
+    final converted = CurrencyUtil.convert(amount, _region ?? 'usd');
+    return CurrencyUtil.format(converted, _region ?? 'usd');
   }
 
   Future<void> _fetchHotels() async {
@@ -234,24 +267,8 @@ class _MainMenuPageState extends State<MainMenuPage> {
                 }
                 final hotel = _filteredHotels[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: ListTile(
-                    leading: (hotel['image'] != null && hotel['image'].toString().startsWith('http'))
-                        ? CachedNetworkImage(
-                            imageUrl: hotel['image'],
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const SizedBox(
-                              width: 60,
-                              height: 60,
-                              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                            ),
-                            errorWidget: (context, url, error) => const Icon(Icons.hotel, size: 40, color: Colors.green),
-                          )
-                        : const Icon(Icons.hotel, size: 40, color: Colors.green),
-                    title: Text(hotel['name'] ?? 'No Name'),
-                    subtitle: Text('Rating: ${hotel['review_summary']?['rating'] ?? '-'} | Mulai dari: ${hotel['price_ranges']?['minimum'] ?? '-'} | Pemesanan: ${hotel['review_summary']?['count'] ?? '-'}'),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: InkWell(
                     onTap: () {
                       Navigator.push(
                         context,
@@ -260,6 +277,64 @@ class _MainMenuPageState extends State<MainMenuPage> {
                         ),
                       );
                     },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (hotel['image'] != null && hotel['image'].toString().startsWith('http'))
+                          CachedNetworkImage(
+                            imageUrl: hotel['image'],
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const SizedBox(
+                              height: 200,
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                            errorWidget: (context, url, error) => const Icon(Icons.hotel, size: 80, color: Colors.green),
+                          )
+                        else
+                          const SizedBox(
+                            height: 200,
+                            child: Center(child: Icon(Icons.hotel, size: 80, color: Colors.green)),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                hotel['name'] ?? 'No Name',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.orange, size: 20),
+                                  const SizedBox(width: 4),
+                                  Text('${hotel['review_summary']?['rating'] ?? '-'}'),
+                                  const SizedBox(width: 16),
+                                  const Icon(Icons.people, size: 20),
+                                  const SizedBox(width: 4),
+                                  Text('${hotel['review_summary']?['count'] ?? '-'} pemesanan'),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Harga mulai: ${_formatCurrency((hotel['price_ranges']?['minimum'] as num?)?.toDouble() ?? 0.0)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF388E3C),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

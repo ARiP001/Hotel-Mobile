@@ -3,6 +3,8 @@ import '../models/transaction.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utilities/currency_util.dart';
+import '../utilities/session_manager.dart';
+import 'welcome_page.dart';
 
 class ReceiptPage extends StatefulWidget {
   final Transaction transaction;
@@ -18,7 +20,18 @@ class _ReceiptPageState extends State<ReceiptPage> {
   @override
   void initState() {
     super.initState();
+    _checkSession();
     _loadRegion();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await SessionManager.isLoggedIn();
+    if (!isLoggedIn && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomePage()),
+      );
+    }
   }
 
   Future<void> _loadRegion() async {
