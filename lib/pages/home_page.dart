@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'main_menu_page.dart';
+import 'hotel_list.dart';
 import 'profil_page.dart';
 import 'saran_page.dart';
 import 'welcome_page.dart';
+import 'time_converter_page.dart';
 import '../utilities/session_manager.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = const [
     MainMenuPage(),
+    TimeConverterPage(),
     ProfilPage(),
     SaranPage(),
   ];
@@ -53,7 +55,9 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: const Color(0xFF388E3C),
         elevation: 1,
         title: Text(
-          isMainMenu ? 'TuruKamar' : (_currentIndex == 1 ? 'Profil' : 'Saran & Kesan'),
+          isMainMenu ? 'TuruKamar' : 
+          (_currentIndex == 1 ? 'Konversi Waktu' : 
+          (_currentIndex == 2 ? 'Profil' : 'Saran & Kesan')),
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -64,13 +68,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     // TODO: Implement notification page
                   },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.search, color: Colors.white),
-                  onPressed: () {
-                    // TODO: Implement search page
-                  },
-                ),
+                )
               ]
             : null,
       ),
@@ -81,8 +79,10 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.white,
         backgroundColor: const Color(0xFF388E3C),
         unselectedItemColor: Colors.white70,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.access_time), label: 'Waktu'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           BottomNavigationBarItem(icon: Icon(Icons.help), label: 'Saran'),
         ],

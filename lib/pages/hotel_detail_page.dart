@@ -448,15 +448,6 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
               roomInfo('Economist', minPrice),
               roomInfo('Regular', double.tryParse(regPrice) ?? minPrice),
               roomInfo('VIP', maxPrice),
-              const SizedBox(height: 16),
-              if (hotel['url'] != null && hotel['url'].toString().startsWith('http'))
-                TextButton.icon(
-                  onPressed: () {
-                    // TODO: open url
-                  },
-                  icon: const Icon(Icons.open_in_new),
-                  label: const Text('Lihat di TripAdvisor'),
-                ),
               const SizedBox(height: 24),
               Center(
                 child: ElevatedButton(

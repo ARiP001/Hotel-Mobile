@@ -25,11 +25,13 @@ dependencies:
   hive_flutter: ^1.1.0
   cached_network_image: ^3.3.1
   crypto: ^3.0.3
+  cupertino_icons: ^1.0.2
+  google_maps_flutter: ^2.4.0
+  sensors_plus: ^3.0.3
+  timezone: ^0.9.2
 
   geolocator: ^13.0.4
-  google_maps_flutter: ^2.5.0
   google_fonts: ^6.1.0
-  sensors_plus: ^4.0.2
 
 
 dev_dependencies:

@@ -59,35 +59,35 @@ class TentangPage extends StatelessWidget {
             _buildInfoCard(
               icon: Icons.email,
               title: 'Email',
-              subtitle: 'support@turukamar.com',
+              subtitle: 'ariffathurrahman0@gmail.com',
             ),
             const SizedBox(height: 20),
             _buildInfoCard(
               icon: Icons.link,
-              title: 'Website',
-              subtitle: 'https://turukamar.com',
-              onTap: () => _launchURL('https://turukamar.com'),
+              title: 'Repsitory',
+              subtitle: 'https://github.com/ARiP001',
+              onTap: () => _launchURL('https://github.com/ARiP001'),
             ),
             const SizedBox(height: 20),
             _buildInfoCard(
               icon: Icons.camera_alt,
               title: 'Instagram',
-              subtitle: '@turukamar',
-              onTap: () => _launchURL('https://instagram.com/turukamar'),
+              subtitle: '@arif.fathur_',
+              onTap: () => _launchURL('https://instagram.com/arif.fathur_'),
             ),
             const SizedBox(height: 20),
             _buildInfoCard(
               icon: Icons.work,
               title: 'LinkedIn',
-              subtitle: 'turukamar',
-              onTap: () => _launchURL('https://www.linkedin.com/company/turukamar'),
+              subtitle: 'arif-fathurrahman',
+              onTap: () => _launchURL('https://www.linkedin.com/in/arif-fathurrahman/'),
             ),
             const SizedBox(height: 20),
             _buildInfoCard(
               icon: Icons.chat,
               title: 'WhatsApp',
-              subtitle: '+62 812-3456-7890',
-              onTap: () => _launchURL('https://wa.me/6281234567890'),
+              subtitle: '+62 856-0103-6974',
+              onTap: () => _launchURL('https://wa.me/6285601036974'),
             ),
             const SizedBox(height: 30),
             const Text(
@@ -165,7 +165,7 @@ class TentangPage extends StatelessWidget {
   }
 
   Future<void> _launchEmail() async {
-    final uri = Uri.parse('mailto:support@turukamar.com');
+    final uri = Uri.parse('mailto:ariffathurrahman0@gmail.com');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {

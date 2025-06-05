@@ -30,14 +30,21 @@ class _MainMenuPageState extends State<MainMenuPage> {
   bool _isLoading = false;
   bool _hasMore = true;
   String? _region;
+  final TextEditingController _searchController = TextEditingController();
 
   // Filter state
   String? _selectedLocation;
   double? _minPrice;
   double? _minRating;
+  String _searchQuery = '';
 
   List<Map<String, dynamic>> get _filteredHotels {
     return _hotels.where((hotel) {
+      // Filter pencarian nama
+      if (_searchQuery.isNotEmpty) {
+        final name = (hotel['name'] ?? '').toString().toLowerCase();
+        if (!name.contains(_searchQuery.toLowerCase())) return false;
+      }
       // Filter lokasi
       if (_selectedLocation != null && _selectedLocation != 'Semua') {
         final key = hotel['key'] ?? '';
@@ -73,6 +80,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -213,7 +221,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                             });
                             Navigator.pop(context);
                           },
-                          child: const Text('Terapkan'),
+                          child: const Text('Terapkan', style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
@@ -253,92 +261,136 @@ class _MainMenuPageState extends State<MainMenuPage> {
           ),
         ],
       ),
-      body: _filteredHotels.isEmpty && _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              controller: _scrollController,
-              itemCount: _filteredHotels.length + (_isLoading ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _filteredHotels.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                final hotel = _filteredHotels[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HotelDetailPage(hotel: hotel),
-                        ),
-                      );
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (hotel['image'] != null && hotel['image'].toString().startsWith('http'))
-                          CachedNetworkImage(
-                            imageUrl: hotel['image'],
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const SizedBox(
-                              height: 200,
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
-                            errorWidget: (context, url, error) => const Icon(Icons.hotel, size: 80, color: Colors.green),
-                          )
-                        else
-                          const SizedBox(
-                            height: 200,
-                            child: Center(child: Icon(Icons.hotel, size: 80, color: Colors.green)),
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                hotel['name'] ?? 'No Name',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const Icon(Icons.star, color: Colors.orange, size: 20),
-                                  const SizedBox(width: 4),
-                                  Text('${hotel['review_summary']?['rating'] ?? '-'}'),
-                                  const SizedBox(width: 16),
-                                  const Icon(Icons.people, size: 20),
-                                  const SizedBox(width: 4),
-                                  Text('${hotel['review_summary']?['count'] ?? '-'} pemesanan'),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Harga mulai: ${_formatCurrency((hotel['price_ranges']?['minimum'] as num?)?.toDouble() ?? 0.0)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF388E3C),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari hotel...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
               },
             ),
+          ),
+          Expanded(
+            child: _filteredHotels.isEmpty && _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredHotels.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Tidak ada hotel yang ditemukan',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        itemCount: _filteredHotels.length + (_isLoading ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == _filteredHotels.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          final hotel = _filteredHotels[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HotelDetailPage(hotel: hotel),
+                                  ),
+                                );
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (hotel['image'] != null && hotel['image'].toString().startsWith('http'))
+                                    CachedNetworkImage(
+                                      imageUrl: hotel['image'],
+                                      height: 200,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => const SizedBox(
+                                        height: 200,
+                                        child: Center(child: CircularProgressIndicator()),
+                                      ),
+                                      errorWidget: (context, url, error) => const Icon(Icons.hotel, size: 80, color: Colors.green),
+                                    )
+                                  else
+                                    const SizedBox(
+                                      height: 200,
+                                      child: Center(child: Icon(Icons.hotel, size: 80, color: Colors.green)),
+                                    ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          hotel['name'] ?? 'No Name',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.star, color: Colors.orange, size: 20),
+                                            const SizedBox(width: 4),
+                                            Text('${hotel['review_summary']?['rating'] ?? '-'}'),
+                                            const SizedBox(width: 16),
+                                            const Icon(Icons.people, size: 20),
+                                            const SizedBox(width: 4),
+                                            Text('${hotel['review_summary']?['count'] ?? '-'} pemesanan'),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Harga mulai: ${_formatCurrency((hotel['price_ranges']?['minimum'] as num?)?.toDouble() ?? 0.0)}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xFF388E3C),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 } 
