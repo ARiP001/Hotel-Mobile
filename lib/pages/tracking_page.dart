@@ -137,7 +137,15 @@ class _TrackingPageState extends State<TrackingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Location Tracker"),
+        title: const Text(
+          'Location Tracker',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF388E3C),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Stack(
         children: [

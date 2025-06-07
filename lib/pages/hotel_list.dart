@@ -266,6 +266,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF388E3C),
         title: const Text('Daftar Hotel', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.map, color: Colors.white),

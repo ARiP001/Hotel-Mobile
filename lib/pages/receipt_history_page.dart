@@ -161,6 +161,7 @@ class _ReceiptHistoryPageState extends State<ReceiptHistoryPage> {
         title: const Text('Receipt History'),
         backgroundColor: const Color(0xFF388E3C),
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

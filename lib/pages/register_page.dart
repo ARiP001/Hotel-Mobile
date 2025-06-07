@@ -24,16 +24,26 @@ class _RegisterPageState extends State<RegisterPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
-      setState(() {
-        _error = 'Semua field harus diisi';
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Semua field harus diisi'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
     // Check if user exists
     if (prefs.getString('user_${username}_email') != null) {
-      setState(() {
-        _error = 'Username sudah terdaftar';
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Username sudah terdaftar'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
     // Hash password
@@ -43,6 +53,12 @@ class _RegisterPageState extends State<RegisterPage> {
     await prefs.setString('user_${username}_region', _region);
     await prefs.setDouble('user_${username}_balance', 1000.0);
     if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Akun berhasil dibuat!'),
+        backgroundColor: Colors.green,
+      ),
+    );
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -126,10 +142,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
-                if (_error != null) ...[
-                  const SizedBox(height: 12),
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
-                ],
                 const SizedBox(height: 24),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

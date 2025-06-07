@@ -132,14 +132,28 @@ class _ProfilPageState extends State<ProfilPage> {
     final controller = TextEditingController(text: currentValue);
     String label = field == 'username' ? 'Username' : field == 'email' ? 'Email' : 'Region';
     final prefs = await SharedPreferences.getInstance();
+    String tempRegion = currentValue;
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Edit $label'),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(labelText: 'Masukkan $label baru'),
-        ),
+        content: field == 'region'
+            ? DropdownButtonFormField<String>(
+                value: tempRegion.isNotEmpty ? tempRegion : 'indo',
+                items: const [
+                  DropdownMenuItem(value: 'indo', child: Text('Indonesia')),
+                  DropdownMenuItem(value: 'us', child: Text('United States')),
+                  DropdownMenuItem(value: 'europe', child: Text('Europe')),
+                ],
+                onChanged: (val) {
+                  tempRegion = val ?? 'indo';
+                },
+                decoration: const InputDecoration(labelText: 'Pilih Region'),
+              )
+            : TextField(
+                controller: controller,
+                decoration: InputDecoration(labelText: 'Masukkan $label baru'),
+              ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -147,7 +161,7 @@ class _ProfilPageState extends State<ProfilPage> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final newValue = controller.text.trim();
+              final newValue = field == 'region' ? tempRegion : controller.text.trim();
               if (newValue.isNotEmpty) {
                 final username = _username;
                 if (field == 'username' && username != null) {

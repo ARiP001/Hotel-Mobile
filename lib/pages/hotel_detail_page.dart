@@ -70,8 +70,24 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
     if (_username != null) {
       if (_isBookmarked) {
         await BookmarkService.removeBookmark(widget.hotel['key'], _username!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bookmark dihapus'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       } else {
         await BookmarkService.saveBookmark(widget.hotel, _username!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Berhasil menambah bookmark!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
       setState(() {
         _isBookmarked = !_isBookmarked;
@@ -353,6 +369,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         backgroundColor: const Color(0xFF388E3C),
         title: Text(hotel['name'] ?? 'Detail Hotel', style: const TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(

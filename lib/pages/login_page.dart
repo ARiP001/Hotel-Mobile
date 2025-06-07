@@ -41,9 +41,14 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } else {
-      setState(() {
-        _error = 'Username or password is incorrect';
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Username or password is incorrect'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -91,10 +96,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                if (_error != null) ...[
-                  const SizedBox(height: 12),
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
-                ],
                 const SizedBox(height: 24),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

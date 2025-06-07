@@ -74,6 +74,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
         title: const Text('Bookmark Hotel'),
         backgroundColor: const Color(0xFF388E3C),
         foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

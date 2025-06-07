@@ -64,8 +64,10 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bukti Pemesanan'),
+        title: const Text('Bukti Pemesanan', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF388E3C),
+        centerTitle: true,
+        // iconTheme: const IconThemeData(color: Color(0xFF388E3C)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -131,7 +133,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                     child: ElevatedButton(
                       child: const Text('Download PDF'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
