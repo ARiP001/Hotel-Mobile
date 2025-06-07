@@ -1,10 +1,10 @@
 # TuruKamar
 
-Aplikasi mobile Flutter untuk pemesanan dan manajemen hotel.
+Aplikasi mobile Flutter untuk booking kamar hotel provinsi DIY.
 
 ## Konsep Aplikasi
 
-TuruKamar adalah aplikasi yang dirancang untuk membantu pengguna dalam memesan dan mengelola hotel. Aplikasi ini menawarkan berbagai fitur untuk memudahkan pengguna dalam mencari, memesan, dan mengelola akomodasi mereka.
+TuruKamar adalah aplikasi yang dirancang untuk membantu pengguna dalam memesan kamar hotel. Aplikasi ini menawarkan berbagai fitur untuk memudahkan pengguna dalam mencari, memesan, dan mengelola akomodasi mereka.
 
 ## Kriteria Projek
 
@@ -21,16 +21,15 @@ Projek ini dibuat menggunakan kriteria berikut:
    - Menggunakan enkripsi untuk keamanan data
 
 3. **Terkoneksi database / penyimpanan (SQLite, Hive, dll)** ✅
-   - Menggunakan `SharedPreferences` dan 'Hive' untuk penyimpanan lokal
-   - Menyimpan data user, booking, dan preferensi
+   - Menggunakan `SharedPreferences` dan `Hive` untuk penyimpanan lokal
+   - Menyimpan data user, booking, dan bookmark
 
 4. **Terdapat web service / API boleh sampai pemanfaatan IoT, games atau multiplatform (Android, iOS) serta memiliki fasilitas LBS yang terkait tema** ✅
    - Menggunakan Xotelo API untuk data hotel
    - Menggunakan `Geolocator` untuk fitur LBS
-   - Mendukung multiplatform (Android/iOS)
 
 5. **Terdapat menu buttom navigation: menu profil (ada gambar) dan menu saran dan kesan mata kuliah Teknologi dan Pemrograman Mobile dan logout** ✅
-   - Menu profil dengan gambar
+   - Menu profil user dan profil pengembang
    - Menu saran dan kesan
    - Fitur logout
 
@@ -41,32 +40,17 @@ Projek ini dibuat menggunakan kriteria berikut:
 
 7. **Memiliki fasilitas pencarian dan pemilihan serta notifikasi sesuai dengan konsep** ✅
    - Fitur pencarian hotel
-   - Sistem notifikasi untuk booking
-   - Notifikasi untuk pembayaran
+   - Fitur filter berdasarkan kabupaten, harga, dan rating
+   - Fitur notifikasi untuk booking, login, dan topup
 
 8. **Memiliki sensor sederhana (accelerometer/ gyroscope / magnetometer / barometer)** ✅
    - Menggunakan `sensors_plus` untuk accelerometer
-   - Implementasi shake detection untuk konfirmasi top up
-   - Sensor untuk interaksi user
+   - Implementasi shake detection untuk konfirmasi top up dan booking kamar
 
+### Fitur Tambahan
+  - Generate resi PDF bukti transaksi
+  - Bookmark hotel favorit
 
-### Fitur Utama
-
-- Autentikasi pengguna (login/register)
-- Pencarian dan filter hotel
-- Manajemen pemesanan
-- Kustomisasi profil
-- Konversi mata uang
-- Notifikasi
-- Generasi PDF untuk bukti pembayaran
-
-### Alur Aplikasi
-
-1. Pengguna di halaman Utama (kosong) → ke halaman daftar surat → klik surat tersebut → isi target hafalan sampai tanggal berapa, dikasih tahu pengingatnya kapan → Tersimpan di Database.
-2. Di Halaman Utama tersedia list itu → di tekan → Mulai menghafal (Terdapat lokasi menghafal juga, dan sensor apakah hp sedang berdiri atau tidur) → Selesai → Tercatat di database sudah selesai untuk hari itu → Halaman utama kosong.
-3. Notifikasi bunyi → Bisa dilihat kembali di halaman notifikasi → mulai menghafal.
-4. Pengguna buka halaman detail → bisa melihat data pribadi → bisa melihat kesan TPM.
-5. Pengguna buka halaman detail → Pengguna buka halaman berlangganan --> nanti tulisan pilihannya 10 Dolar --> Pengguna bakal masukin uang secara IDR nanti di sistem bakal convert menjadi Dolar. Kalo IDR belum mencukupi, tombol pembayaran belum bisa ditekan --> Pengguna berhasil menemukan uang yang sesuai --> Nanti jadi berlangganan --> Pengguna set waktu untuk pembayaran selanjutnya (konversi waktu).
 
 ## Setup
 
