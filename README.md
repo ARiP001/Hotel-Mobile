@@ -6,21 +6,49 @@ Aplikasi mobile Flutter untuk pemesanan dan manajemen hotel.
 
 TuruKamar adalah aplikasi yang dirancang untuk membantu pengguna dalam memesan dan mengelola hotel. Aplikasi ini menawarkan berbagai fitur untuk memudahkan pengguna dalam mencari, memesan, dan mengelola akomodasi mereka.
 
-### Syarat Tugas Akhir
+## Kriteria Projek
 
-- Login menggunakan enkripsi disimpan di session ✅
-- Terkoneksi database (menggunakan SharedPreference) ✅
-- Menggunakan API ✅
-- Fitur LBS ✅
-- Terdapat menu navigasi:
-  - Menu Profile: Gambar diri dan data pribadi ✅
-  - Menu saran mata kuliah ✅
-  - Logout ✅
-- Konversi mata uang mengikuti konsep ✅
-- Konversi waktu (minimal WIB, WIT, WITA, London) mengikuti konsep ✅
-- Fitur Searching ✅
-- Fitur Notifikasi ✅
-- Sensor sederhana ✅
+Projek ini dibuat menggunakan kriteria berikut:
+
+1. **Memiliki konsep projek akhir** ✅
+   - Aplikasi hotel booking dengan fitur lengkap
+   - Terintegrasi dengan API hotel
+   - Memiliki sistem booking dan manajemen akun
+
+2. **Terdapat login dengan enkripsi (tidak menggunakan firebase) dan session** ✅
+   - Menggunakan `SessionManager` untuk manajemen session
+   - Data login disimpan di `SharedPreferences`
+   - Menggunakan enkripsi untuk keamanan data
+
+3. **Terkoneksi database / penyimpanan (SQLite, Hive, dll)** ✅
+   - Menggunakan `SharedPreferences` dan 'Hive' untuk penyimpanan lokal
+   - Menyimpan data user, booking, dan preferensi
+
+4. **Terdapat web service / API boleh sampai pemanfaatan IoT, games atau multiplatform (Android, iOS) serta memiliki fasilitas LBS yang terkait tema** ✅
+   - Menggunakan Xotelo API untuk data hotel
+   - Menggunakan `Geolocator` untuk fitur LBS
+   - Mendukung multiplatform (Android/iOS)
+
+5. **Terdapat menu buttom navigation: menu profil (ada gambar) dan menu saran dan kesan mata kuliah Teknologi dan Pemrograman Mobile dan logout** ✅
+   - Menu profil dengan gambar
+   - Menu saran dan kesan
+   - Fitur logout
+
+6. **Memiliki menu tambahan konversi mata uang (min. 3 mata uang) dan konversi waktu (minimal ada: WIB, WIT, WITA, London) yang terpadukan dengan konsep** ✅
+   - Konversi 3 mata uang (USD, IDR, EUR, JPY)
+   - Konversi waktu (WIB, WITA, WIT, UTC)
+   - Terintegrasi dengan sistem booking
+
+7. **Memiliki fasilitas pencarian dan pemilihan serta notifikasi sesuai dengan konsep** ✅
+   - Fitur pencarian hotel
+   - Sistem notifikasi untuk booking
+   - Notifikasi untuk pembayaran
+
+8. **Memiliki sensor sederhana (accelerometer/ gyroscope / magnetometer / barometer)** ✅
+   - Menggunakan `sensors_plus` untuk accelerometer
+   - Implementasi shake detection untuk konfirmasi top up
+   - Sensor untuk interaksi user
+
 
 ### Fitur Utama
 
