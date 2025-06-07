@@ -8,6 +8,8 @@ import 'bookmark_page.dart';
 import 'tentang_page.dart';
 import 'receipt_history_page.dart';
 import 'topup_page.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
@@ -23,6 +25,7 @@ class _ProfilPageState extends State<ProfilPage> {
   String? _region;
   String? _password;
   double? _balance;
+  File? _profileImage;
 
   @override
   void initState() {
@@ -83,6 +86,16 @@ class _ProfilPageState extends State<ProfilPage> {
     if (_balance == null) return '-';
     final converted = CurrencyUtil.convert(_balance!, _region ?? 'usd');
     return CurrencyUtil.format(converted, _region ?? 'usd');
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
   }
 
   Widget _buildTabItem(String title, int index) {
@@ -175,20 +188,32 @@ class _ProfilPageState extends State<ProfilPage> {
   }) {
     return Column(
       children: [
-        Container(
-          height: 170,
-          width: 170,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: const Color(0xFF388E3C),
-              width: 2,
+        GestureDetector(
+          onTap: _pickImage,
+          child: Container(
+            height: 170,
+            width: 170,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF388E3C),
+                width: 2,
+              ),
             ),
-          ),
-          child: const Icon(
-            Icons.person,
-            size: 100,
-            color: Color(0xFF388E3C),
+            child: _profileImage != null
+                ? ClipOval(
+                    child: Image.file(
+                      _profileImage!,
+                      fit: BoxFit.cover,
+                      width: 170,
+                      height: 170,
+                    ),
+                  )
+                : const Icon(
+                    Icons.person,
+                    size: 100,
+                    color: Color(0xFF388E3C),
+                  ),
           ),
         ),
         const SizedBox(height: 20),

@@ -27,6 +27,7 @@ dependencies:
   crypto: ^3.0.3
   pdf: ^3.10.4
   printing: ^5.11.0
+  image_picker: ^1.0.4
 
   geolocator: ^13.0.4
   google_maps_flutter: ^2.5.0

@@ -37,6 +37,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
   double? _maxPrice;
   double? _minRating;
   String _searchQuery = '';
+  bool _discountOnly = false;
 
   List<Map<String, dynamic>> get _filteredHotels {
     return _hotels.where((hotel) {
@@ -67,6 +68,11 @@ class _MainMenuPageState extends State<MainMenuPage> {
       final rating = hotel['review_summary']?['rating'];
       final ratingVal = (rating is num) ? rating.toDouble() : double.tryParse(rating?.toString() ?? '') ?? 0;
       if (_minRating != null && ratingVal < _minRating!) return false;
+      // Filter diskon
+      if (_discountOnly) {
+        final orderCount = hotel['review_summary']?['count'];
+        if (orderCount != 0) return false;
+      }
       return true;
     }).toList();
   }
@@ -157,6 +163,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
     String? tempLocation = _selectedLocation;
     double? tempMaxPrice = _maxPrice;
     double? tempMinRating = _minRating;
+    bool tempDiscountOnly = _discountOnly;
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -200,6 +207,16 @@ class _MainMenuPageState extends State<MainMenuPage> {
                       decoration: const InputDecoration(labelText: 'Rating Minimum'),
                       onChanged: (val) => setModalState(() => tempMinRating = double.tryParse(val)),
                     ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: tempDiscountOnly,
+                          onChanged: (val) => setModalState(() => tempDiscountOnly = val ?? false),
+                        ),
+                        const Text('Tampilkan hanya hotel diskon'),
+                      ],
+                    ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -210,6 +227,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                               _selectedLocation = null;
                               _maxPrice = null;
                               _minRating = null;
+                              _discountOnly = false;
                             });
                             Navigator.pop(context);
                           },
@@ -223,6 +241,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                               _selectedLocation = tempLocation == 'Semua' ? null : tempLocation;
                               _maxPrice = tempMaxPrice;
                               _minRating = tempMinRating;
+                              _discountOnly = tempDiscountOnly;
                             });
                             Navigator.pop(context);
                           },
