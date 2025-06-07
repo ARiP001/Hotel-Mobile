@@ -27,6 +27,9 @@ class Transaction extends HiveObject {
   @HiveField(7)
   double total;
 
+  @HiveField(8)
+  DateTime bookingTime;
+
   Transaction({
     required this.username,
     required this.hotelKey,
@@ -36,5 +39,6 @@ class Transaction extends HiveObject {
     required this.day,
     required this.price,
     required this.total,
+    required this.bookingTime,
   });
 } 

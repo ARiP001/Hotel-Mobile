@@ -25,6 +25,8 @@ dependencies:
   hive_flutter: ^1.1.0
   cached_network_image: ^3.3.1
   crypto: ^3.0.3
+  pdf: ^3.10.4
+  printing: ^5.11.0
 
   geolocator: ^13.0.4
   google_maps_flutter: ^2.5.0

@@ -34,7 +34,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   // Filter state
   String? _selectedLocation;
-  double? _minPrice;
+  double? _maxPrice;
   double? _minRating;
   String _searchQuery = '';
 
@@ -57,7 +57,12 @@ class _MainMenuPageState extends State<MainMenuPage> {
       // Filter harga
       final minPrice = hotel['price_ranges']?['minimum'];
       final priceVal = (minPrice is num) ? minPrice.toDouble() : double.tryParse(minPrice?.toString() ?? '') ?? 0;
-      if (_minPrice != null && priceVal < _minPrice!) return false;
+      double convertedMaxPrice = _maxPrice ?? 0;
+      if (_maxPrice != null) {
+        // Konversi nilai filter ke USD sebelum dibandingkan
+        convertedMaxPrice = CurrencyUtil.convertToUSD(_maxPrice!, _region ?? 'usd');
+        if (priceVal > convertedMaxPrice) return false;
+      }
       // Filter rating
       final rating = hotel['review_summary']?['rating'];
       final ratingVal = (rating is num) ? rating.toDouble() : double.tryParse(rating?.toString() ?? '') ?? 0;
@@ -150,7 +155,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
 
   void _showFilterDialog() async {
     String? tempLocation = _selectedLocation;
-    double? tempMinPrice = _minPrice;
+    double? tempMaxPrice = _maxPrice;
     double? tempMinRating = _minRating;
     await showModalBottomSheet(
       context: context,
@@ -183,10 +188,10 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      initialValue: tempMinPrice?.toString() ?? '',
+                      initialValue: tempMaxPrice?.toString() ?? '',
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Harga Minimum'),
-                      onChanged: (val) => setModalState(() => tempMinPrice = double.tryParse(val)),
+                      decoration: const InputDecoration(labelText: 'Harga Maksimum'),
+                      onChanged: (val) => setModalState(() => tempMaxPrice = double.tryParse(val)),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -203,7 +208,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                           onPressed: () {
                             setState(() {
                               _selectedLocation = null;
-                              _minPrice = null;
+                              _maxPrice = null;
                               _minRating = null;
                             });
                             Navigator.pop(context);
@@ -216,7 +221,7 @@ class _MainMenuPageState extends State<MainMenuPage> {
                           onPressed: () {
                             setState(() {
                               _selectedLocation = tempLocation == 'Semua' ? null : tempLocation;
-                              _minPrice = tempMinPrice;
+                              _maxPrice = tempMaxPrice;
                               _minRating = tempMinRating;
                             });
                             Navigator.pop(context);

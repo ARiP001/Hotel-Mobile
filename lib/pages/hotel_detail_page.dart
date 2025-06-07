@@ -212,7 +212,8 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Pesan Kamar'),
+              title: 
+                  const Text('Pesan Kamar'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -261,10 +262,6 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal'),
-                ),
                 ElevatedButton(
                   onPressed: () async {
                     if (checkin == null || checkout == null || !checkout!.isAfter(checkin!)) {
@@ -296,6 +293,7 @@ class _HotelDetailPageState extends State<HotelDetailPage> {
                       day: day,
                       price: priceVal,
                       total: total,
+                      bookingTime: DateTime.now(),
                     );
 
                     // Tampilkan dialog konfirmasi shake
