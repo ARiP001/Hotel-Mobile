@@ -10,6 +10,7 @@ import 'receipt_history_page.dart';
 import 'topup_page.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
@@ -26,12 +27,14 @@ class _ProfilPageState extends State<ProfilPage> {
   String? _password;
   double? _balance;
   File? _profileImage;
+  ImageProvider? _profileImageProvider;
 
   @override
   void initState() {
     super.initState();
     _checkSession();
     _loadUserData();
+    _loadProfileImage();
   }
 
   Future<void> _loadUserData() async {
@@ -88,14 +91,102 @@ class _ProfilPageState extends State<ProfilPage> {
     return CurrencyUtil.format(converted, _region ?? 'usd');
   }
 
+  Future<void> _saveProfileImage(File imageFile) async {
+    final prefs = await SharedPreferences.getInstance();
+    final bytes = await imageFile.readAsBytes();
+    final base64Image = base64Encode(bytes);
+    if (_username != null) {
+      await prefs.setString('profile_image_${_username}', base64Image);
+    }
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final base64Image = _username != null ? prefs.getString('profile_image_${_username}') : null;
+    if (base64Image != null) {
+      final bytes = base64Decode(base64Image);
+      setState(() {
+        _profileImageProvider = MemoryImage(bytes);
+      });
+    }
+  }
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
+        _profileImageProvider = FileImage(_profileImage!);
       });
+      await _saveProfileImage(_profileImage!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto profil berhasil diupload')),
+        );
+      }
     }
+  }
+
+  Future<void> _editInfoDialog(String field, String currentValue) async {
+    final controller = TextEditingController(text: currentValue);
+    String label = field == 'username' ? 'Username' : field == 'email' ? 'Email' : 'Region';
+    final prefs = await SharedPreferences.getInstance();
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit $label'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(labelText: 'Masukkan $label baru'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newValue = controller.text.trim();
+              if (newValue.isNotEmpty) {
+                final username = _username;
+                if (field == 'username' && username != null) {
+                  await prefs.setString('logged_in_user', newValue);
+                  await prefs.setString('user_${newValue}_email', _email ?? '');
+                  await prefs.setString('user_${newValue}_region', _region ?? '');
+                  await prefs.setString('user_${newValue}_password', _password ?? '');
+                  await prefs.setDouble('user_${newValue}_balance', _balance ?? 0);
+                  await prefs.remove('user_${username}_email');
+                  await prefs.remove('user_${username}_region');
+                  await prefs.remove('user_${username}_password');
+                  await prefs.remove('user_${username}_balance');
+                  setState(() {
+                    _username = newValue;
+                  });
+                } else if (field == 'email' && username != null) {
+                  await prefs.setString('user_${username}_email', newValue);
+                  setState(() {
+                    _email = newValue;
+                  });
+                } else if (field == 'region' && username != null) {
+                  await prefs.setString('user_${username}_region', newValue);
+                  setState(() {
+                    _region = newValue;
+                  });
+                }
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('$label berhasil diubah')),
+                  );
+                }
+              }
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTabItem(String title, int index) {
@@ -200,10 +291,10 @@ class _ProfilPageState extends State<ProfilPage> {
                 width: 2,
               ),
             ),
-            child: _profileImage != null
+            child: _profileImageProvider != null
                 ? ClipOval(
-                    child: Image.file(
-                      _profileImage!,
+                    child: Image(
+                      image: _profileImageProvider!,
                       fit: BoxFit.cover,
                       width: 170,
                       height: 170,
@@ -221,12 +312,14 @@ class _ProfilPageState extends State<ProfilPage> {
           icon: Icons.person,
           title: 'Username',
           subtitle: name,
+          onTap: () => _editInfoDialog('username', name),
         ),
         const SizedBox(height: 20),
         _buildInfoCard(
           icon: Icons.email,
           title: 'Email',
           subtitle: email,
+          onTap: () => _editInfoDialog('email', email),
         ),
         const SizedBox(height: 20),
         _buildInfoCard(
@@ -239,6 +332,7 @@ class _ProfilPageState extends State<ProfilPage> {
           icon: Icons.language,
           title: 'Region',
           subtitle: _region?.toUpperCase() ?? '-',
+          onTap: () => _editInfoDialog('region', _region ?? ''),
         ),
         const SizedBox(height: 20),
         _buildInfoCard(

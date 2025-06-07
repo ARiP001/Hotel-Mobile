@@ -7,6 +7,7 @@ import '../utils/session_manager.dart';
 import 'welcome_page.dart';
 import '../utils/pdf_util.dart';
 import '../utils/timezone_util.dart';
+import '../utils/notification_service.dart';
 
 class ReceiptPage extends StatefulWidget {
   final Transaction transaction;
@@ -97,8 +98,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
                   ),
                   Text('Jumlah Hari    : ${t.day}', style: const TextStyle(fontSize: 16)),
                   Text('Harga per Hari : $formattedPrice', style: const TextStyle(fontSize: 16)),
-                  Text('Total                  : $totalBeforeDiscount', style: const TextStyle(fontSize: 16)),
-                  if (isDiscount)
+                  if (isDiscount) ...[
+                    Text('Total                  : $totalBeforeDiscount', style: const TextStyle(fontSize: 16)),
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                       child: Text(
@@ -106,6 +107,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                         style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
                       ),
                     ),
+                  ],
                   const Divider(height: 24),
                   Text('Total: $formattedTotal', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green)),
                   const SizedBox(height: 24),
@@ -134,7 +136,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      onPressed: () => generateAndDownloadPDF(widget.transaction, _region),
+                      onPressed: () async {
+                        await generateAndDownloadPDF(widget.transaction, _region);
+                        await NotificationService().showNotification(
+                          title: 'Download Selesai',
+                          body: 'Resi pemesanan berhasil di download',
+                        );
+                      },
                     ),
                   ),
                 ],
