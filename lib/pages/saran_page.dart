@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'welcome_page.dart';
-import '../utilities/session_manager.dart';
+import '../utils/session_manager.dart';
 
 class SaranPage extends StatefulWidget {
   const SaranPage({super.key});
@@ -119,19 +119,6 @@ class _SaranPageState extends State<SaranPage>
             padding: const EdgeInsets.all(20),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _logout(context),
-                icon: const Icon(Icons.logout, color: Colors.white),
-                label:
-                    const Text('LOGOUT', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-              ),
             ),
           ),
         ],

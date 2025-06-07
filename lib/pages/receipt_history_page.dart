@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction.dart';
 import '../models/boxes.dart';
-import '../utilities/currency_util.dart';
-import '../utilities/session_manager.dart';
+import '../utils/currency_util.dart';
+import '../utils/session_manager.dart';
 import 'welcome_page.dart';
 
 class ReceiptHistoryPage extends StatefulWidget {

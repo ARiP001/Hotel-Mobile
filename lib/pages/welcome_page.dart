@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:TuruKamar/pages/home_page.dart';
 import 'package:TuruKamar/pages/login_page.dart';
-import '../utilities/session_manager.dart';
+import '../utils/session_manager.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

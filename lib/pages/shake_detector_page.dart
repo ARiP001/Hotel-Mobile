@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:TuruKamar/utilities/notification_service.dart';
-import '../utilities/session_manager.dart';
+import 'package:TuruKamar/utils/notification_service.dart';
+import '../utils/session_manager.dart';
 import 'welcome_page.dart';
 
 class ShakeDetectorPage extends StatefulWidget {

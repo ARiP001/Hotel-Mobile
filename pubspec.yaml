@@ -42,16 +42,30 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
   image_path: "assets/logos/logo_h.png"
+  foreground_image: "assets/logos/logo_h.png"
+  background_color: "#2196F3"
   min_sdk_android: 21
   remove_alpha_ios: true
-  
+  web:
+    generate: true
+    image_path: "assets/logos/logo_h.png"
+    background_color: "#2196F3"
+    theme_color: "#ffffff"
+  windows:
+    generate: true
+    image_path: "assets/logos/logo_h.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/logos/logo_h.png"
 
 flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/Arif.jpg
     - assets/logos/logo_h.png
+    - assets/images/Arif.jpg
+    - assets/logos/logo_hotel.png

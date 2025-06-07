@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/bookmark.dart';
-import '../services/bookmark_service.dart';
-import '../utilities/currency_util.dart';
-import '../utilities/session_manager.dart';
+import '../utils/bookmark_service.dart';
+import '../utils/currency_util.dart';
+import '../utils/session_manager.dart';
 import 'welcome_page.dart';
 import 'hotel_detail_page.dart';
 

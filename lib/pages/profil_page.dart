@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utilities/session_manager.dart';
-import '../utilities/currency_util.dart';
+import '../utils/session_manager.dart';
+import '../utils/currency_util.dart';
 import 'welcome_page.dart';
 import 'bookmark_page.dart';
 import 'tentang_page.dart';
@@ -309,6 +309,31 @@ class _ProfilPageState extends State<ProfilPage> {
                           imagePath: '',
                           name: _username ?? '',
                           email: _email ?? '',
+                        ),
+                        const SizedBox(height: 30),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              await SessionManager.logout();
+                              if (mounted) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const WelcomePage()),
+                                  (route) => false,
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.logout, color: Colors.white),
+                            label: const Text('LOGOUT', style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.shade600,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),

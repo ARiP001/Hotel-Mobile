@@ -3,7 +3,7 @@ import 'hotel_list.dart';
 import 'profil_page.dart';
 import 'saran_page.dart';
 import 'welcome_page.dart';
-import '../utilities/session_manager.dart';
+import '../utils/session_manager.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

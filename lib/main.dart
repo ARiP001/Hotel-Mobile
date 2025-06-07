@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:TuruKamar/utilities/notification_service.dart';
+import 'package:TuruKamar/utils/notification_service.dart';
 import 'package:TuruKamar/pages/home_page.dart';
 import 'package:TuruKamar/pages/welcome_page.dart';
 import 'package:permission_handler/permission_handler.dart';

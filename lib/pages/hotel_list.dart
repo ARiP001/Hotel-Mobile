@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:TuruKamar/utilities/hotel_network.dart';
+import 'package:TuruKamar/utils/hotel_network.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'hotel_detail_page.dart';
 import 'tracking_page.dart';
 import 'welcome_page.dart';
-import '../utilities/session_manager.dart';
-import '../utilities/currency_util.dart';
+import '../utils/session_manager.dart';
+import '../utils/currency_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainMenuPage extends StatefulWidget {

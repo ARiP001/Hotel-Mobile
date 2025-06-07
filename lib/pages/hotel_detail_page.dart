@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utilities/currency_util.dart';
+import '../utils/currency_util.dart';
 import 'package:hive/hive.dart';
 import '../models/transaction.dart';
 import '../models/boxes.dart';
@@ -9,11 +9,11 @@ import 'package:intl/intl.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
 import 'dart:math';
-import '../utilities/notification_service.dart';
+import '../utils/notification_service.dart';
 import '../pages/receipt_page.dart';
-import '../utilities/session_manager.dart';
+import '../utils/session_manager.dart';
 import 'welcome_page.dart';
-import '../services/bookmark_service.dart';
+import '../utils/bookmark_service.dart';
 
 class HotelDetailPage extends StatefulWidget {
   final Map<String, dynamic> hotel;

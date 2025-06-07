@@ -4,8 +4,8 @@ import 'package:TuruKamar/pages/register_page.dart';
 import 'package:TuruKamar/pages/home_page.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
-import 'package:TuruKamar/utilities/notification_service.dart';
-import 'package:TuruKamar/utilities/session_manager.dart';
+import 'package:TuruKamar/utils/notification_service.dart';
+import 'package:TuruKamar/utils/session_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    hintText: 'Username or Email',
+                    hintText: 'Username',
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(

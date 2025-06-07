@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utilities/currency_util.dart';
-import '../utilities/session_manager.dart';
+import '../utils/currency_util.dart';
+import '../utils/session_manager.dart';
 import 'welcome_page.dart';
 
 class ReceiptPage extends StatefulWidget {

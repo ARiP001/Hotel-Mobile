@@ -3,9 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
 import 'dart:math';
-import '../utilities/notification_service.dart';
-import '../utilities/currency_util.dart';
-import '../utilities/session_manager.dart';
+import '../utils/notification_service.dart';
+import '../utils/currency_util.dart';
+import '../utils/session_manager.dart';
 import 'welcome_page.dart';
 
 class TopUpPage extends StatefulWidget {
