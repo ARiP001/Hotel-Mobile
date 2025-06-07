@@ -47,7 +47,7 @@ Projek ini dibuat menggunakan kriteria berikut:
    - Menggunakan `sensors_plus` untuk accelerometer
    - Implementasi shake detection untuk konfirmasi top up dan booking kamar
 
-### Fitur Tambahan
+## Fitur Tambahan
   - Generate resi PDF bukti transaksi
   - Bookmark hotel favorit
 
