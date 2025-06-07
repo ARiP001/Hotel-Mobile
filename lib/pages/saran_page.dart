@@ -103,14 +103,12 @@ class _SaranPageState extends State<SaranPage>
               controller: _tabController,
               children: [
                 _buildContent(
-                  "Saran",
-                  'Praktikum teknologi pemrograman mobile ini sangat menarik dan menyenangkan. '
-                  'Saya merasa terbantu dengan bimbingan dari Bang Dejan dan Bang Azkal selama proses pembelajaran.',
+                  "Kesan",
+                  'Dengan pak Bagus hidup jadi lebih menantang (*emot jempol*)',
                 ),
                 _buildContent(
-                  "Kesan",
-                  'Praktikum ini memberikan pengalaman belajar yang menyenangkan dan bermanfaat. '
-                  'Bang Dejan dan Bang Azkal sangat membantu dan sabar dalam membimbing selama praktikum.',
+                  "Saran",
+                  'Semoga tahun depan, soal dan tugasnya jadi lebih menantang',
                 ),
               ],
             ),

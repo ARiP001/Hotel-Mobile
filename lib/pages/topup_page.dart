@@ -7,6 +7,7 @@ import '../utils/notification_service.dart';
 import '../utils/currency_util.dart';
 import '../utils/session_manager.dart';
 import 'welcome_page.dart';
+import 'package:flutter/services.dart';
 
 class TopUpPage extends StatefulWidget {
   const TopUpPage({super.key});
@@ -88,7 +89,7 @@ class _TopUpPageState extends State<TopUpPage> {
       // Show notification
       await NotificationService().showNotification(
         title: 'Top Up Berhasil',
-        body: 'Saldo Anda telah ditambahkan sebesar $inputAmount',
+        body: 'Saldo Anda telah ditambahkan sebesar ${_formatCurrency(inputAmount)}',
       );
 
       // Update UI
@@ -220,6 +221,10 @@ class _TopUpPageState extends State<TopUpPage> {
                   TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(12),
+                    ],
                     decoration: InputDecoration(
                       hintText: 'Masukkan jumlah top up',
                       prefixText: '${_region?.toUpperCase() ?? 'USD'} ',

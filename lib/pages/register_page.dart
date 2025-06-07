@@ -128,6 +128,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     DropdownMenuItem(value: 'indo', child: Text('Indonesia')),
                     DropdownMenuItem(value: 'us', child: Text('United States')),
                     DropdownMenuItem(value: 'europe', child: Text('Europe')),
+                    DropdownMenuItem(value: 'japan', child: Text('Japan')),
                   ],
                   onChanged: (value) {
                     setState(() {

@@ -144,6 +144,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   DropdownMenuItem(value: 'indo', child: Text('Indonesia')),
                   DropdownMenuItem(value: 'us', child: Text('United States')),
                   DropdownMenuItem(value: 'europe', child: Text('Europe')),
+                  DropdownMenuItem(value: 'japan', child: Text('Japan')),
                 ],
                 onChanged: (val) {
                   tempRegion = val ?? 'indo';
