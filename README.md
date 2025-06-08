@@ -11,7 +11,7 @@ Aplikasi mobile Flutter untuk booking kamar hotel provinsi DIY.
 ## Dokumen Untuk Kuliah PPT
 
 - PPT Projek Akhir : [Link Disini](https://www.canva.com)
-- Laporan Projek Akhir : [Link Disini](https://docs.google.com/document/d/18eAxOyaWCwpzyZIK1w-eFOn4QVmLglc8vPEDpYtzKxs/edit?usp=sharing)
+- Laporan Projek Akhir : [Link Disini](https://docs.google.com/)
 
 ## Konsep Aplikasi
 
