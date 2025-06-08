@@ -1,6 +1,19 @@
 # TuruKamar
-
 Aplikasi mobile Flutter untuk booking kamar hotel provinsi DIY.
+
+## Data Diri
+
+- Dosen : Bagus Muhammad Akbar
+- Nama : Arif F*****
+- NIM : 123220136
+- Kelas : TPM IF-D
+
+## Dokumen Untuk Kuliah PPT
+
+- PPT Projek Akhir : [Link Disini](https://www.canva.com)
+- Laporan Projek Akhir : [Link Disini](https://docs.google.com/document/d/18eAxOyaWCwpzyZIK1w-eFOn4QVmLglc8vPEDpYtzKxs/edit?usp=sharing)
+- Aplikasi Projek Akhir : [Link Disini](apk/tpm-projek-akhir.apk)
+
 
 ## Konsep Aplikasi
 
