@@ -13,10 +13,18 @@ Aplikasi mobile Flutter untuk booking kamar hotel provinsi DIY.
 - PPT Projek Akhir : [Link Disini](https://www.canva.com)
 - Laporan Projek Akhir : [Link Disini](https://docs.google.com/document/d/18eAxOyaWCwpzyZIK1w-eFOn4QVmLglc8vPEDpYtzKxs/edit?usp=sharing)
 
-
 ## Konsep Aplikasi
 
 TuruKamar adalah aplikasi yang dirancang untuk membantu pengguna dalam memesan kamar hotel. Aplikasi ini menawarkan berbagai fitur untuk memudahkan pengguna dalam mencari, memesan, dan mengelola akomodasi mereka.
+
+## API yang Digunakan
+
+Aplikasi ini menggunakan [Xotelo API](https://xotelo.com/#endpoint-search) untuk mendapatkan data hotel secara real-time. API ini menyediakan endpoint untuk mendapatkan daftar hotel berdasarkan lokasi.
+
+- **Latest list endpoint (/list)**: Mendapatkan daftar hotel berdasarkan lokasi.
+
+API ini memungkinkan aplikasi untuk menampilkan informasi hotel yang akurat dan terkini kepada pengguna.
+
 
 ## Kriteria Projek
 
@@ -98,12 +106,3 @@ Projek ini dibuat menggunakan kriteria berikut:
 - **Google Maps Flutter**: Menampilkan peta Google di aplikasi.
 - **Google Fonts**: Menggunakan font Google di aplikasi.
 - **Sensors Plus**: Mengakses sensor perangkat seperti akselerometer dan giroskop.
-
-## API yang Digunakan
-
-Aplikasi ini menggunakan [Xotelo API](https://xotelo.com/#endpoint-search) untuk mendapatkan data hotel secara real-time. API ini menyediakan endpoint untuk mendapatkan daftar hotel berdasarkan lokasi.
-
-- **Latest list endpoint (/list)**: Mendapatkan daftar hotel berdasarkan lokasi.
-
-API ini memungkinkan aplikasi untuk menampilkan informasi hotel yang akurat dan terkini kepada pengguna.
-
